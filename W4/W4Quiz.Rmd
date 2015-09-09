@@ -1,0 +1,625 @@
+---
+title: "Week4Quiz"
+output: pdf_document
+---
+#Exploratory Data Analysis 1
+##Histogram Assessment
+
+###QUESTION 1.1  
+Given the above histogram: how many people are between the ages of 35 and 45?
+
+Answer is 9
+
+##QQ-plot Assessment
+
+Download this RData file to your working directory: [link](http://courses.edx.org/c4x/HarvardX/PH525.1x/asset/skew.RData). Then load the data into R with the following command:
+
+```{r cache=TRUE}
+load("skew.RData")
+```
+
+
+You should have a 1000 x 9 dimensional matrix 'dat':
+
+```{r cache=TRUE}
+dim(dat)
+```
+
+
+Using QQ-plots, compare the distribution of each column of the matrix to a normal. That is, use qqnorm() on each column. To accomplish this quickly, you can use the following line of code to set up a grid for 3x3=9 plots. ("mfrow" means we want a multifigure grid filled in row-by-row. Another choice is mfcol.)
+
+```{r cache=TRUE, warning=FALSE}
+library(rafalib)
+mypar2(3,3)
+```
+
+
+Then you can use a for loop, to loop through the columns, and display one qqnorm() plot at a time. You should replace the text between ** with your own code.
+
+```{r cache=TRUE}
+mypar2(3,3)
+colnames(dat)<-c("C1","C2","C3","C4","C5","C6","C7","C8","C9")
+for (i in 1:9) {
+qqnorm(dat[,i],main=paste0("Column=",colnames(dat)[i]))
+qqline(dat[,i])
+}
+
+```
+
+Identify the two columns which are skewed.
+
+Examine each of these two columns using a histogram. Note which column has "positive skew", in other words the histogram shows a long tail to the right (toward larger values). Note which column has "negative skew", that is, a long tail to the left (toward smaller values). Note that positive skew looks like an up-shaping curve in a qqnorm() plot, while negative skew looks like a down-shaping curve.
+
+```{r cache=TRUE,warning=FALSE}
+library(rafalib)
+mypar2(1,2)
+hist(dat[,4],xlab=paste0("Column=",colnames(dat)[4]),
+     main=paste0("Histogram of Column ",colnames(dat)[4]))
+hist(dat[,9],xlab=paste0("Column=",colnames(dat)[9]),
+     main=paste0("Histogram of Column ",colnames(dat)[9]))
+
+```
+
+You can use the following line to reset your graph to just show one at a time:
+
+```{r cache=TRUE,warning=TRUE}
+library(rafalib)
+mypar2(1,1)
+```
+
+
+###QUESTION 2.1  
+Which column has positive skew (a long tail to the right)?
+
+Answer is 4
+
+###QUESTION 2.2
+Which column has negative skew (a long tail to the left)?
+
+Answer is 9
+
+##Boxplot Assessment
+
+The InsectSprays data set measures the counts of insects in agricultural experimental units treated with different insecticides. This dataset is included in R, and you can examine it by typing:
+
+```{r cache=TRUE}
+head(InsectSprays)
+```
+
+
+Try out two equivalent ways of drawing boxplots in R, using the InsectSprays dataset. Below is pseudocode, which you should modify to work with the InsectSprays dataset.
+
+1) using split:
+
+```{r cache=TRUE}
+s<-split(InsectSprays, InsectSprays$spray)
+```
+
+
+2) using a formula:
+
+```{r cache=TRUE}
+boxplot(InsectSprays$count ~ InsectSprays$spray,
+        xlab="Spray Type",
+        ylab="Count",
+        col = "orange")
+```
+
+###QUESTION 3.1
+Which spray seems the most effective (has the lowest median)?
+
+```{r}
+median(s$C$count)
+```
+
+#Exploratory Data Analysis 2
+##Scatter Plot
+
+Load the father's and son's heights data by installing the UsingR package:
+
+```{r cache=TRUE,warning=FALSE,results='hide'}
+library(UsingR)
+data(father.son)
+```
+
+
+We can make the scatterplot which was made in the previous video:
+
+```{r}
+plot(father.son$fheight, father.son$sheight)
+```
+
+
+And calculate the correlation between these two vectors:
+
+```{r}
+cor(father.son$fheight, father.son$sheight)
+```
+
+
+A useful trick for scatterplots in R is the identify() function. This let's you click on points in the plot, and then once you hit the ESC key, the row number of the point(s) you clicked will be printed in the R console and on the figure:
+
+`identify(father.son$fheight, father.son$sheight)`
+
+We saw that the correlation is related to the scaled vectors seen in the scatterplot. Let's try this with the father's and son's heights. Set the following variables (to save yourself keystrokes):
+
+```{r cache=TRUE,warning=FALSE,results='hide'}
+library(UsingR)
+x = father.son$fheight
+y = father.son$sheight
+n = nrow(father.son)
+```
+
+
+The scale() function subtracts the mean and divides by the standard deviation. Make a scatterplot of scale(x) and scale(y) and add horizontal and vertical lines.
+
+```{r cache=TRUE}
+plot(scale(x), scale(y))
+abline(h=0, v=0)
+```
+
+Now consider the number of points in the four quadrants of the figure. The correlation (or "[Pearson correlation](http://en.wikipedia.org/wiki/Pearson_product-moment_correlation_coefficient)") is nearly the same as multiplying the scaled x values with the scaled y values, and taking the average. If the points fall on a diagonal line pointing up and to the right, then the points are mostly in the +/+ quadrant and the -/- quadrant. So both of these quadrants contribute positive values to the average. If the points falls on a diagonal line to down and to the right, then we have mostly +/- and -/+, contributing negative values to the average.
+
+###QUESTION 1.1
+Calculate the average of (scaled x values times scaled y values)
+
+```{r cache=TRUE}
+mean(scale(x) * scale(y))
+```
+
+Note that this value above is not exactly the same as:
+
+```{r}
+cor(x,y)
+```
+
+
+This is because the standard deviation has in its formula (n-1) while the Pearson correlation instead uses (n). Check for yourself:
+
+```{r}
+sum(scale(x) * scale(y)) / (n - 1)
+```
+
+##EDA Assessment
+Here we will use the plots we've learned about to explore a dataset: some stats on a random sample of runners from the New York City Marthon in 2002. This data set can be found in the UsingR package (used in the previous assessment). Load the library and then load the nym.2002 data set with the following lines:
+
+```{r cache=TRUE,warning=FALSE,results='hide'}
+library(UsingR)
+data(nym.2002)
+
+```
+
+
+Examine the head() of the data in nym.2002. 
+```{r}
+head(nym.2002)
+```
+
+Try the following plots:
+
+* histogram of times 
+* plot of runner's age vs their time
+* plot of runner's time vs their place in the race
+* qqnorm() of the runner's times. Are they normal? Positive or negative skew?
+* a barplot of the most common location of origin. hint: tail(sort(table(nym.2002$home)),10)
+* a boxplot of the runner's time over their gender
+
+* histogram of times
+```{r cache=TRUE}
+hist(nym.2002$time)
+```
+
+* plot of runner's age vs their time
+```{r cache=TRUE}
+plot(nym.2002$age,nym.2002$time)
+```
+
+* plot of runner's time vs their place in the race
+```{r cache=TRUE}
+plot(nym.2002$time,nym.2002$place)
+```
+
+* qqnorm() of the runner's times. Are they normal? Positive or negative skew?
+```{r cache=TRUE}
+qqnorm(nym.2002$time)
+qqline(nym.2002$time)
+```
+
+* a barplot of the most common location of origin. hint: tail(sort(table(nym.2002$home)),10)
+
+```{r cache=TRUE}
+barplot(tail(sort(table(nym.2002$home)),10))
+```
+
+
+* a boxplot of the runner's time over their gender
+```{r cache=TRUE}
+boxplot(nym.2002$time ~ nym.2002$gender)
+```
+
+
+In the previous video, we saw that multiplicative changes are symmetric around 0 when we are on the logarithmic scale. In other words, if we use the log scale, 1/2 times a number x, and 2 times a number x, are equally far away from x. We will explore this with the NYC marathon data.
+
+Create a vector time of the sorted times:
+
+```{r cache=TRUE}
+time = sort(nym.2002$time)
+```
+
+###QUESTION 2.1  
+What is the fastest time divided the median time?
+```{r cache=TRUE}
+min(time) / median(time)
+```
+
+###QUESTION 2.2  
+What is the slowest time divided the median time?
+
+```{r cache=TRUE}
+max(time) / median(time)
+```
+
+Compare the following two plots.
+
+1) A plot of the ratio of times to the median time, with horizontal lines at twice as fast as the median time, and twice as slow as the median time.
+
+```{r cache=TRUE}
+plot(time/median(time), ylim=c(1/4,4))
+abline(h=c(1/2,1,2))
+```
+
+
+2) A plot of the log2 ratio of times to the median time. The horizontal lines indicate the same as above: twice as fast and twice as slow.
+
+```{r cache=TRUE}
+plot(log2(time/median(time)),ylim=c(-2,2))
+abline(h=-1:1)
+```
+
+
+##Pie Chart
+
+A Pie chart is not recommended but can be created in R using pie(). An example is as follows.
+
+```{r cache=TRUE}
+cyltable<- table(mtcars$cyl)
+labs<- paste("(",names(cyltable),")", "\n", cyltable, sep="")
+pie(cyltable, labels = labs, col = c("red", "yellow", "blue"),
+    main="PIE CHART OF CYLINDER NUMBERS\n with sample sizes")
+```
+
+###QUESTION 3.1  
+When is it appropriate to use pie charts?
+
+* When you are hungry 
+* To compare percentages 
+* To compare values that add up to 100% 
+* Never
+
+Answer is Never
+
+####EXPLANATION
+
+Quoting from the R help page for the function pie: "Pie charts are a very bad way of displaying information. The eye is good at judging linear measures and bad at judging relative areas. A bar chart or dot chart is a preferable way of displaying this type of data."
+
+##Donut plots
+
+There is actually a plot that is less useful than a piechart. A donut plot is like a piechart but with the middle removed. An example
+
+```{r cache=TRUE}
+library(ggplot2)
+# Create test data.
+dat = data.frame(count=c(10, 60, 30), category=c("A", "B", "C"))
+dat$fraction = dat$count / sum(dat$count)
+dat = dat[order(dat$fraction), ]
+dat$ymax = cumsum(dat$fraction)
+dat$ymin = c(0, head(dat$ymax, n=-1))
+
+p2 = ggplot(dat, aes(fill=category, ymax=ymax, ymin=ymin, xmax=4, xmin=3)) +
+  geom_rect(colour="grey30") +
+  coord_polar(theta="y") +
+  xlim(c(0, 4)) +
+  theme_bw() +
+  theme(panel.grid=element_blank()) +
+  theme(axis.text=element_blank()) +
+  theme(axis.ticks=element_blank()) +
+  labs(title="Customized ring plot")
+p2
+```
+Donut plots are actually worse than pie charts. The reason is that by removing the center we remove one of the visual cues for determining the different areas: the anges. There is no reason to ever use a donut to display data.
+
+###QUESTION 3.2 
+The use of pseudo-3D plots in the literature mostly adds
+
+* Pizzazz 
+* The ability to see three dimensional data
+* Confusion
+
+Answer is Confusion
+####EXPLANATION
+
+Humans have a hard time seeing 3 dimensions. It is even harder when it is a pseudo 3-D plot drawn on paper. Making two dimensional versions that display the same information is almost always possible.
+
+##Bar Plots
+Bar Plots are used when we have to compare percentages that add up to 100%
+```{r cache=TRUE}
+ barplot(VADeaths, border = "dark blue") 
+```
+
+###QUESTION 3.3
+When is it appropirate to use a barplot
+
+* To compare percentages that add up to 100% 
+* To display data from different groups: show the mean of each group 
+* To illustrate data that resulted in a p-value by adding an antenna at the top 
+* To summarize the relationship between two variables
+
+Answer is To compare percentages that add up to 100% 
+
+####EXPLANATION
+
+Barplots are much better than piecharts for displaying percentages. For the 2nd and 3rd answers we would use either boxplots or stripcharts while for the 4th we would use a scatter plot.
+
+#Introducing dplyr
+
+## dplyr Assessment
+Read in the msleep dataset from CSV file
+```{r cache=TRUE,warning=FALSE,results='hide',echo=FALSE}
+library(dplyr)
+```
+
+```{r}
+library(dplyr)
+msleep <- read.csv("msleep_ggplot2.csv")
+```
+
+###QUESTION 1.1  
+Using dplyr and the pipe command %>%, and perform the following steps:
+
+Add a column of the proportion of REM sleep to total sleep
+```{r cache=TRUE}
+msleep %>% 
+  mutate(rem_proportion = sleep_rem / sleep_total) %>%
+    head(3)
+```
+Group the animals by their taxonomic order
+```{r cache=TRUE}
+msleep %>%
+  group_by(order) %>%
+    mutate(rem_proportion = sleep_rem / sleep_total) %>%
+      head(3)
+
+```
+Summarise by the median REM proportion
+```{r cache=TRUE}
+msleep %>%
+  group_by(order) %>%
+    mutate(rem_proportion = sleep_rem / sleep_total) %>%
+      summarise(avg_sleep = median(rem_proportion) )  %>%
+        head(3)
+```
+Arrange by the median REM proportion
+```{r cache=TRUE}
+msleep %>%
+  group_by(order) %>%
+    mutate(rem_proportion = sleep_rem / sleep_total) %>%
+      summarise(med_sleep = median(rem_proportion) ) %>%
+        arrange(med_sleep) %>%
+          head(3)
+
+```
+
+Take the head() of this to see just the orders with smallest median REM proportion
+
+What is the median REM proportion of the order with the smallest median REM proportion?
+
+Answer 
+```{rcache=TRUE}
+msleep %>%
+  group_by(order) %>%
+    mutate(rem_proportion = sleep_rem / sleep_total) %>%
+      summarise(med_sleep = median(rem_proportion) ) %>%
+        arrange(med_sleep) %>%
+          head(1)
+```
+
+#Robust Summaries
+
+##Median, MAD, And Spearman Assessment
+
+We're going to explore the properties of robust statistics, using a dataset of the weight of chicks in grams as they grow from day 0 to day 21. This dataset also splits up the chicks by different protein diets, which are coded from 1 to 4.
+
+This dataset is built into R, and can be loaded with:
+
+```{r cache=TRUE}
+data(ChickWeight)
+```
+
+
+Just to start, take a look at the weights of all observations over time, and color this by the Diet:
+
+```{r cache=TRUE}
+plot(ChickWeight$Time, ChickWeight$weight, col=ChickWeight$Diet)
+```
+
+
+First, in order to easily compare weights at different time points across the different chicks, we will use the reshape() function in R to change the dataset from a "long" shape to a "wide" shape. Long data and wide data are useful for different purposes (for example, the plotting library ggplot2 and the manipulation library dplyr want to have data in the long format).
+
+```{r cache=TRUE}
+head(ChickWeight,3)
+chick = reshape(ChickWeight,idvar=c("Chick","Diet"),timevar="Time",direction="wide")
+```
+
+The meaning of this line is: reshape the data from long to wide, where the columns Chick and Diet are the ID's and the column Time indicates different observations for each ID. Now examine the head of this dataset:
+
+```{r cache=TRUE}
+head(chick,3)
+```
+
+
+The only remaining step is that we want to remove any chicks which have missing observations at any time points (NA for "not available") . The following line of code identifies these rows, and then removes them
+
+```{r cache=TRUE}
+chick = na.omit(chick)
+```
+###QUESTION 2.1  
+We will focus on the chick weights on day 4 (check the column names of 'chick' and note the numbers). How much does the average of chick weights at day 4 increase if we add an outlier measurement of 3000 grams? Specifically what is the average weight of the day 4 chicks including the outlier chick divided by the average of the weight of the day 4 chicks without the outlier. Hint: use c() to add a number to a vector.
+
+```{r cache=TRUE}
+obserOutliner<-c(chick$weight.4,3000)
+mean(obserOutliner)/mean(chick$weight.4)
+```
+###QUESTION 2.2  
+In the problem above we saw how sensitive the mean is to outliers. Now let's see what happens when we use the median instead of the mean. Compute the same ratio but now using median instead of the mean. Specifically what is the median weight of the day 4 chick including the outlier chick divided by the median of the weight of the day 4 chicks without the outleir.
+
+```{r cache=TRUE}
+median(obserOutliner)/median(chick$weight.4)
+```
+
+###QUESTION 2.3  
+Now try the same thing with the sample standard deviation, (the sd() function in R). Add a chick with weight 3000 grams to the chick weights from day 4. How much does the standard deviation change? What's the standard devition with the outlier chick divided by the standard deviation without the outlier chick?
+
+```{r cache=TRUE}
+sd(obserOutliner)/sd(chick$weight.4)
+```
+
+Compare this to the median absolute deviation in R, which is calculated with the mad() function. Note that the mad is unaffected by the addition of a single outlier. The mad() function in R includes the scaling factor 1.4826 which was mentioned in the video, such that mad(x) and sd(x) are very similar for a sample from a normal distribution.
+```{r cache=TRUE}
+mad(obserOutliner)/mad(chick$weight.4)
+```
+
+###QUESTION 2.4  
+Our last question relates to how the Pearson correlation is affected by an outlier, and compare to the Spearman correlation. The Pearson correlation between x and y is given in R by cor(x,y). The Spearman correlation is given by 
+
+`cor(x,y,method="spearman").`
+
+* Pearson correlation
+
+```{r cache=TRUE}
+cor(chick$weight.4,chick$weight.21)
+```
+
+* Spearman correlation
+
+```{r cache=TRUE}
+cor(chick$weight.4,chick$weight.21,method="spearman")
+```
+
+
+Plot the weights of chicks from day 4 and day 21.
+
+```{r cache=TRUE}
+plot(chick$weight.4,chick$weight.21)
+```
+
+We can see that there is some general trend, with the lower weight chicks on day 4 having low weight again on day 21, and likewise for the high weight chicks.
+
+Calculate the Pearson correlation of the weights of chicks from day 4 and day 21. Now calculate how much the Pearson correlation changes if we add a chick that weighs 3000 on day4 and 3000 on day 21. Again, divide the Pearson correlation with the outlier chick over the Pearson correlation computed without the outliers.
+
+```{r cache=TRUE}
+# Pearson Correlation without outliers.
+pWithoutO<-cor(chick$weight.4,chick$weight.21)
+# Pearson Correlation with outliers.
+pWithO<-cor(c(chick$weight.4,3000),c(chick$weight.21,3000))
+pWithO/pWithoutO
+```
+
+Note that the Spearman correlation also changes with the addition of this outlier chick, but much less drastically: cor(x,y,method="spearman") compared to cor(c(x,3000),c(y,3000),method="spearman") with x and y the vectors of interest.
+
+```{r cache=TRUE}
+# Spearman Correlation without outliers.
+sWithoutO<-cor(chick$weight.4,chick$weight.21,method = "spearman")
+# Spearman Correlation with outliers.
+sWithO<-cor(c(chick$weight.4,3000),c(chick$weight.21,3000),method = "spearman")
+sWithO/sWithoutO
+```
+
+##Mann-Whitney-Wilcoxon Test
+We will continue using the chick weight dataset from the previous problem. As a reminder, run these lines of code in R to prepare the data:
+
+```{r}
+data(ChickWeight)
+chick <- reshape(ChickWeight,idvar=c("Chick","Diet"),timevar="Time",direction="wide")
+chick <- na.omit(chick)
+```
+
+
+Make a strip chart with horizontal jitter of the chick weights from day 4 over the different diets:
+
+```{r}
+stripchart(chick$weight.4 ~ chick$Diet, method="jitter", vertical=TRUE)
+```
+
+
+Suppose we want to know if diet 4 has a significant impact on chick weight over diet 1 by day 4. It certainly appears so, but we can use statistical tests to quantify the probability of seeing such a difference if the different diets had equal effect on chick weight.
+
+###QUESTION 2.1  
+Save the weights of the chicks on day 4 from diet 1 as a vector 'x'. Save the weights of the chicks on day 4 from diet 4 as a vector 'y'. 
+
+```{r cache=TRUE}
+x<-subset(chick,select=weight.4,subset = Diet==1)
+y<-subset(chick,select=weight.4,subset = Diet==4)
+```
+
+Now perform a t test comparing x and y (in R the function t.test(x,y) will perform the test).
+
+```{r cache=TRUE}
+t.test(x,y)
+```
+
+Now, perform a Wilcoxon test of x and y (in R the function wilcox.test(x,y) will perform the test).
+
+```{r cache=TRUE,warning=FALSE}
+wilcox.test(x$weight.4,y$weight.4)
+```
+
+
+Note that a warning will appear that an exact p-value cannot be calculated with ties (so an approximation is used, which is fine for our purposes).
+
+Now, perform a t-test of x and y, after adding a single chick of weight 200 grams to 'x' (the diet 1 chicks). What is the p-value from this test? The p-value of a test is available with the following code: t.test(x,y)$p.value
+
+```{r cache=TRUE}
+t.test(c(x$weight.4,200),y$weight.4)$p.value
+```
+
+
+###QUESTION 2.2  
+We will now investigate a possible downside to the Wilcoxon-Mann-Whitney test statistic. Using the following code to make three boxplots, showing the true Diet 1 vs 4 weights, and then two altered versions: one with an additional difference of 10 grams and one with an additional difference of 100 grams. (Use the x and y as defined above, NOT the ones with the added outlier.)
+
+```{r cache=TRUE}
+par(mfrow=c(1,3))
+
+boxplot(x$weight.4,y$weight.4)
+
+boxplot(x$weight.4,y$weight.4+10)
+
+boxplot(x$weight.4,y$weight.4+100)
+
+```
+
+What is the difference in t-test statistic (the statistic is obtained by t.test(x,y)$statistic) between adding 10 and adding 100 to all the values in the group 'y'? So take the the t-test statistic with x and y+10 and substract away the t-test statistic with x and y+100. (The value should be positive).
+
+```{r cache=TRUE}
+t.test(x$weight.4, y$weight.4+10)$statistic - t.test(x$weight.4, y$weight.4+100)$statistic
+```
+
+Now examine the Wilcoxon test statistic for x and y+10 and for x and y+100.
+
+
+```{r cache=TRUE,warning=FALSE}
+wilcox.test(x$weight.4, y$weight.4+10)$statistic - t.test(x$weight.4, y$weight.4+100)$statistic
+```
+
+Because the Wilcoxon works on ranks, after the groups have complete separation (all points from group 'y' are above all points from group 'x'), the statistic will not change, regardless of how large the difference grows. Likewise, the p-value has a minimum value, regardless of how far apart the groups are. This means that the Wilcoxon test can be considered less powerful than the t-test in certain contexts, and with small significance levels (alpha). In fact for small sample sizes, the p-value can't be very small, even when the difference is very large. Compare:
+
+```{r cache=TRUE}
+wilcox.test(c(1,2,3),c(4,5,6))
+
+wilcox.test(c(1,2,3),c(400,500,600))
+```
+
+
+This issue becomes important in Course 3 on Advanced Statistics, when we discuss correction for performing thousands of tests, as is done in high-throughput biological assays.
+
+                           
+------------------------------------------------                           

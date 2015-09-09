@@ -1,0 +1,99 @@
+---
+title: "R programming skills"
+author: "Jeevan Patil"
+date: "9 September 2015"
+output: html_document
+---
+
+
+##R basics
+
+Now that we are set up with R and RStudio, we want to cover some of the very basics of R data manipulation, though we will not have comprehensive coverage of the R syntax. Additional references for R can be found in Precourse > Resources, or in the Syllabus link on the top bar.
+
+##Getting tables into R
+
+The beginning of a "real data analysis" usually starts with getting a table of data loaded into R. The original data might be stored in an Microsoft Excel spreadsheet. There is luckily an easy way to export data from Excel such that it can be read by other software. Go to File > Save As..., and then choose Format: Comma Separated Values (csv). Excel will give a warning then that only a single sheet of data will be exported into the CSV file.
+Mammal sleep data
+
+Let's start here with a CSV file of mammalian sleep data. This data is already bundled up as msleep [1] in the ggplot2 package, but here we want to first show how to read in the data from CSV format.
+
+    [1] Savage and West. "A quantitative, theoretical framework for understanding mammalian sleep." PNAS, 2007.
+
+Download the CSV file from this location:
+
+https://raw.githubusercontent.com/genomicsclass/dagdata/master/inst/extdata/msleep_ggplot2.csv
+
+Type this URL in your browser or click the link, and then click Save As, and specify your local directory. Make sure that no extra endings, such as .txt are added to the file.
+
+We can read CSV files into R using the function read.csv(). As with most R functions, we put a variable name and an equal sign in front of the function to save the table as the variable 'tab'. (You can also use the equal sign instead of the  "arrow" <- to save or "assign" the table; they are equivalent in almost all situations.).
+
+For the line of code below to work, your working directory needs to be the directory in which you saved the file "msleep_ggplot2.csv". There are several ways of ensuring this. One is to create a Project as we did on our videos and save the file while working on that Project. The open the Project in RStudio. Another is to use the getwd() and setwd() functions to determine and set the working directory. Yet another is to use RStuido's menu bar: click on "Sessions", then "Set Working Directory". Once your working directory is the directory containing the file, then you can read it like with the line below. Note that yet another way to do read the file that does not depend on working directories  is to use the full path of the file.
+
+tab = read.csv("msleep_ggplot2.csv")
+
+The variable tab has the class data.frame, which is R's name for a table of data.
+
+class(tab)
+
+Two useful things to know are: what does the top of the dataframe look like, and what are the dimensions of the dataframe?
+
+head(tab)
+dim(tab)
+
+Type ?read.csv, and read the description of the arguments there. Note that the header was assumed to exist because of the argument header=TRUE. If the CSV file did not have a header, the first line of data would be taken as the header. The fix for this would be to specify the argument header=FALSE.
+
+##Accessing Columns 
+
+We'll start really simple, but the next problems will be more challenging.
+
+We can get a column of data from a dataframe by typing the name of the dataframe, then the $ symbol, then the name of the column with no spaces in between. First ask what the column names are using colnames(tab), and then extract one of the columns. The column will be returned as a vector of numbers. Try using autocompletion on the column name using the TAB key on your keyboard. Type the name of the dataframe, then the $ symbol, then the first few letters of the column, then hit TAB. This will autocomplete the name until the end of the name, or until the next character which would determine which column you are referring to. In RStudio, a popup window will show you the possible column names that match the first few letters you wrote.
+
+**Question :** How many hours of total sleep are there for the first animal in the table?
+
+**Answer :** 12.1
+
+
+##Create and manipulate vectors with c()
+
+Vectors can be combined using the c function. For example, we can add a final number, 1000, to the sleep totals:
+
+c(tab$sleep_total, 1000)
+
+##Plot the data
+
+Let's go ahead and make a plot of the brain weight and the total sleep, to see what the data look like:
+
+plot(tab$brainwt, tab$sleep_total)
+
+Once more, with a logarithmic scale x-axis:
+
+plot(tab$brainwt, tab$sleep_total, log="x")
+
+##summary() 
+
+The summary function gives the summary statistics of a set of values.
+
+**Question :** What is the 3rd quartile of the total sleep of all the animals?
+
+**Answer :** 13.75
+
+
+##Subsetting/Indexing 
+
+There are a number of ways to subset a dataframe or a vector. We can use numbers to indicate the rows we want, or a logical vector which is as long as the number of rows of the dataframe, or as long as the vector. We use the square brackets [] and inside give the rows and columns we want to index, separated by a comma. If we leave out the number before or after the comma, it means, give us all the rows or all the columns.
+
+Subsetting a dataframe to the first two rows:
+
+tab[ c(1,2), ]
+
+The rows where the total sleep is greater than 18 hours:
+
+tab[ tab$sleep_total > 18, ]
+
+Subsetting a vector looks very similar, but we just remove the comma (because there are no columns now). The first two elements can be subset like so:
+
+tab$sleep_total[ c(1,2) ]
+
+**Question :** What is the average total sleep, using the function mean() and vector subsetting, for the animals with total sleep greater than 18 hours?
+
+**Answer :** 19.275
